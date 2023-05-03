@@ -13,3 +13,10 @@
 #### 2. initialize the project: npm init
 #### 3. install the required packages: npm install express
 #### 4. to start the server: node server.js and then npm start
+
+
+### website pages:
+#### 1. home page
+#### 2. /trending
+#### 3. /search
+#### 4./favorite
