@@ -18,5 +18,7 @@
 ### website pages:
 #### 1. home page
 #### 2. /trending
-#### 3. /search
-#### 4./favorite
+#### 3. /search/movie name
+#### 4. /favorite
+#### 5. /tvshows
+#### 6. /genres
