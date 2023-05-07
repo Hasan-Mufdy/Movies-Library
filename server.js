@@ -7,13 +7,16 @@ require('dotenv').config();
 
 server.use(cors());
 const PORT = 3000;
+const apiKey = process.env.APIkey;
 let axios = require('axios');
 const fs = require('fs');
 const { send } = require('process');
 
 //////
 server.get('/trending', trendingHandler);
-server.get('/search', searchHandler);
+server.get('/search/:movieName', searchHandler); //here we can put a movie name in the url to search for it
+           //*** the link for the search will be: /search/movie name
+           // for example: /search/The Simpsons Meet the Bocellis in Feliz Navidad
 
 server.get('/tvshows', tvHandler);
 server.get('/genres', genrehandler);
@@ -44,30 +47,39 @@ function trendingHandler(req, res){
 //////
 function searchHandler(req, res){
     
-    // movie name will be added here manually:
-    let mName = "The Simpsons Meet the Bocellis in Feliz Navidad";
-    ////
-    
-    axios.get("https://api.themoviedb.org/3/search/movie?api_key=668baa4bb128a32b82fe0c15b21dd699&language=en-US&query=The&page=2")
+    let mName = req.params.movieName;
+    // here we can put a movie name in the url to search for it
+
+    // *** the link for the search will be: /search/movie name
+
+    axios.get(`https://api.themoviedb.org/3/search/movie?api_key=668baa4bb128a32b82fe0c15b21dd699&language=en-US&query=${mName}&page=1`)
     .then(results => {
-        // const allMovies = results.data.results.map(allMovies => {
-            // if(allMovies.original_title === mName){
-            let allMovies = [];
-                results.data.results.forEach((movie) => {
-                    if(movie.original_title === mName){
-                        allMovies.push({
-                            id: movie.id,
-                            title: movie.original_title,
-                            poster_path: movie.poster_path,
-                            release_date: movie.release_date,
-                            overview: movie.overview
-                        })
-                    }
-                    
-                });
+        const allMovies = results.data.results.map(allMovies => {
+            if(allMovies.original_title === mName){
+                    // if(movie.original_title === mName){
+                        return{
+                            id: allMovies.id,
+                            title: allMovies.original_title,
+                            poster_path: allMovies.poster_path,
+                            release_date: allMovies.release_date,
+                            overview: allMovies.overview
+                        }
+
+                    // }
+                        // let allMovies = [];
+                        // results.data.results.forEach((movie) => {
+                        // allMovies.push({
+                        //     id: movie.id,
+                        //     title: movie.original_title,
+                        //     poster_path: movie.poster_path,
+                        //     release_date: movie.release_date,
+                        //     overview: movie.overview
+                        // })
+                        
+                // });
             
-            // }
-        // });
+            }
+        });
         res.send(allMovies);        
         // const searchedMovie = [];
     })
@@ -77,12 +89,35 @@ function searchHandler(req, res){
     })
 }
 //////
-function tvHandler(){
-    //
+function tvHandler(req, res){
+    axios.get(`https://api.themoviedb.org/3/tv/3?api_key=${apiKey}&language=en-US`)
+    .then(results => {
+        const tvShow = {
+            id: results.data.id,
+            title: results.data.name,
+            release_date: results.data.first_air_date,
+            poster_path: results.data.poster_path,
+            overview: results.data.overview
+        };
+        res.send(tvShow);
+    })
+    .catch(error => {
+        console.log('sorry, something is wrong...', error);
+        res.status(500).send(error);
+    });
 }
-function genrehandler(){
-    //
-}
+
+function genrehandler(req, res){
+    axios.get(`https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=en-US`)
+    
+    .then(results =>{
+        const genresList = results.data.genres;
+        res.send(genresList);
+    })
+    .catch(error => {
+        console.log('sorry, something is wrong...',error)
+        res.status(500).send(error);
+    })}
 
 
 server.get('/', (req, res) => {
@@ -101,10 +136,6 @@ server.get('/', (req, res) => {
 server.get('/favorite', (req, res) => {
     res.send("Welcome to Favorite Page");
 })
-
-// function Movies(){
-
-// }
 
 
 // 404:
