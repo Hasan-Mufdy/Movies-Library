@@ -4,13 +4,18 @@ const express = require('express');
 const cors = require('cors');
 const server = express();
 require('dotenv').config();
+const pg = require('pg');
 
 server.use(cors());
 const PORT = 3000;
 const apiKey = process.env.APIkey;
+server.use(express.json());
 let axios = require('axios');
 const fs = require('fs');
 const { send } = require('process');
+
+const client = new pg.Client('postgresql://localhost:5432/movies');
+
 
 //////
 server.get('/trending', trendingHandler);
@@ -20,6 +25,12 @@ server.get('/search/:movieName', searchHandler); //here we can put a movie name 
 
 server.get('/tvshows', tvHandler);
 server.get('/genres', genrehandler);
+////
+
+server.get('/getmovies', getMoviesHandler);
+// to send the data:
+server.post('/getmovies', addMoviesHandler);
+
 
 //////
 
@@ -92,6 +103,7 @@ function searchHandler(req, res){
 function tvHandler(req, res){
     axios.get(`https://api.themoviedb.org/3/tv/3?api_key=${apiKey}&language=en-US`)
     .then(results => {
+        let movie = new Movie(results.id, results.title, results.overview);
         const tvShow = {
             id: results.data.id,
             title: results.data.name,
@@ -131,20 +143,58 @@ server.get('/', (req, res) => {
         res.send(movieData);
     });
 });
-
-
+//////////////////////////////////////////
+function getMoviesHandler(req, res){
+    const sql = `SELECT * FROM movies`;
+    client.query(sql)
+    .then(data =>{
+        res.send(data.rows);
+    })
+    .catch((error)=>{
+        errorHandler(error, req, res)
+    })
+}
+function addMoviesHandler(req, res){
+    const movie = req.body;
+    console.log(movie);
+    
+    const sql = `INSERT INTO movies (movieName, movieInfo)
+    VALUES ($1, $2)`;
+    const values = [movie.movieName, movie.movieInfo];
+    client.query(sql, values)
+    .then(data =>{
+        res.send("movies are added successfully")
+    })
+    .catch((error) => {
+        errorHandler(error, req, res);
+    })
+}
+//////////////////////////////////////////////
 server.get('/favorite', (req, res) => {
     res.send("Welcome to Favorite Page");
 })
 
+function Movie(id, movieName, movieInfo){
+    this.id = id;
+    this.movieName = movieName;
+    this.movieInfo = movieInfo;
+}
 
 // 404:
 server.use(function(req, res){
     res.status(404).send('page not found...');
 });
 
-
-
-server.listen(PORT, () =>{
-    console.log(`port: ${PORT} , ready`)
+function errorHandler(error,req,res){
+    const err = {
+        status: 500,
+        message: error
+    }
+    res.status(500).send(err);
+}
+client.connect()
+.then(() => {
+    server.listen(PORT, () =>{
+        console.log(`port: ${PORT} , ready`)
+    })
 });
