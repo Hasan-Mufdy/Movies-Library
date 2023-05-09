@@ -10,9 +10,14 @@
 ## to run and modify this project in your machine:
 
 #### 1. clone the project.
-#### 2. initialize the project: npm init
-#### 3. install the required packages: npm install express
-#### 4. to start the server: node server.js and then npm start
+#### 2. initialize the project:
+`npm init`
+#### 3. install the required packages: 
+`npm install express`
+`npm install axios`
+`npm install pg`
+#### 4. to start the server:
+`node server.js` and then `npm start`
 
 
 ### website pages:
@@ -22,3 +27,4 @@
 #### 4. /favorite
 #### 5. /tvshows
 #### 6. /genres
+#### 7. /getmovies
