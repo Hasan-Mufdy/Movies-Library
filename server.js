@@ -28,10 +28,10 @@ server.get('/genres', genrehandler);
 ////
 server.get('/getmovies', getMoviesHandler);
 // to send the data:
-server.post('/getmovies', addMoviesHandler);
+server.post('/addMovies', addMoviesHandler);
 //////
-server.delete('/getmovies/:id', deleteMoviesHandler);
-server.put('/getmovies/:id', updateMoviesHandler);
+server.delete('/deleteMovies/:id', deleteMoviesHandler);
+server.put('/updateMovies/:id', updateMoviesHandler);
 server.get('/getmovies/:id', getMoviesByIDHandler);
 //////
 
