@@ -7,7 +7,7 @@ require('dotenv').config();
 const pg = require('pg');
 
 server.use(cors());
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const apiKey = process.env.APIkey;
 server.use(express.json());
 let axios = require('axios');
@@ -15,7 +15,7 @@ const fs = require('fs');
 const { send } = require('process');
 const { error } = require('console');
 
-const client = new pg.Client('postgresql://localhost:5432/movies');
+const client = new pg.Client(process.env.DATABASE_URL);
 
 //////
 server.get('/trending', trendingHandler);
